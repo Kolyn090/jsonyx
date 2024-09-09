@@ -1,8 +1,9 @@
-import os
 import json
 import re
 
 import db_path
+import util
+import dir_maker
 
 '''
     Creates a data table for the provided json file (Table).
@@ -160,14 +161,21 @@ def get_all_property_name_val(data, parent_key=''):
     return items
 
 
-def make_table_for_json(filedir, json_obj):
+def make_type_for_json(json_dir, system_path, data_path):
     """
     | Make a data table for the given json file.
     | For more details, please check the top of this script.
-    :param filedir: str
-    :param file: str
+    :param json_dir: str
+    :param system_path: str
+    :param data_path: str
     :return: Void
     """
+
+    with open(json_dir) as file:
+        if file == '':
+            return
+        else:
+            json_obj = json.loads(file.read())
 
     def python_to_sql_type(py_type):
         type_mapping = {
@@ -180,25 +188,13 @@ def make_table_for_json(filedir, json_obj):
         }
         return type_mapping.get(py_type, 'UNKNOWN')
 
-    def get_table_dir():
-        split = filedir.split("/")
-        result_dir = (db_path.system_path +
-                      "/table/" +
-                      '/'.join(split[4:-1]) +
-                      "/")
-        result_dir = result_dir.replace('//', '/')
-        os.makedirs(result_dir, exist_ok=True)
-        result_file_dir = result_dir + split[len(split)-1].replace('.json', '-dt.json')
-        return result_file_dir
-
-    # print(filedir)
     out = {}
 
     for element in json_obj:
         all_property_name_val = get_all_property_name_val(element)
         for key, value in all_property_name_val.items():
             # Remove the brackets to 'join' the keys
-            real_key = re.sub(r'\[.*?\]', '', key)
+            real_key = re.sub(r'\[.*?]', '', key)
 
             if key != real_key:
                 # This key contains an array of objects,
@@ -238,27 +234,11 @@ def make_table_for_json(filedir, json_obj):
         out[key] = '/'.join(str(item) for item in out[key])
 
     # Write the table to -dt.json
-    with open(get_table_dir(), 'w') as json_file:
+    with open(dir_maker.get_dt_dir(json_dir, system_path, data_path), 'w') as json_file:
         json.dump(convert_to_nested_json(out), json_file, indent=4)
 
 
-def make_table_for_all_json_files_under(root):
-    if os.path.isdir(root):
-        subdirs = os.listdir(root)
-        for subdir in subdirs:
-            make_table_for_all_json_files_under(f"{root}/{subdir}")
-    else:
-        if not root.endswith('.json'):
-            return
-        # Ignore special tables
-        if root.endswith('-dt.json') or root.endswith('-di.json'):
-            return
-
-        filedir = root
-        with open(filedir, 'r') as file:
-            if file != '':
-                make_table_for_json(filedir, json.loads(file.read()))
-
-
 if __name__ == "__main__":
-    make_table_for_all_json_files_under(db_path.data_path)
+    jsons = util.get_jsons_under(db_path.data_path)
+    for j in jsons:
+        make_type_for_json(j, db_path.system_path, db_path.data_path)

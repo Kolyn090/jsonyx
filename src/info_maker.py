@@ -2,6 +2,8 @@ import os
 import json
 
 import db_path
+import util
+import dir_maker
 
 '''
     Creates Data Info for all valid json files under the given
@@ -41,91 +43,29 @@ def replace_json_leaves_with_null(json_obj):
         return None
 
 
-def make_di_for_json(filedir, file):
+def make_info_for_json(type_dir, system_path):
     """
-    | Make Data Info table for the given valid json file
+    | Make info table for the given type table
     | according to the provided info key.
-    :param filedir: str
-    :param file: str
-    :return: void
+    :param type_dir: str
+    :param system_path: str
+    :return: Void
     """
 
-    def get_info_dir():
-        """
-        | Returns the directory of the new Data Info file
-        :return: str
-        """
+    with open(type_dir) as file:
+        if file == '':
+            return
+        else:
+            json_obj = json.loads(file.read())
 
-        split = filedir.split('/')
-        split.remove('table')
-        split.insert(4, 'info')
-        newdir = '/'.join(split[:-1])
-        if newdir != '':
-            newdir += '/'
-        newdir += split[len(split) - 1].replace('-dt.json', '')
-        newdir += '/'
-
-        os.makedirs(newdir, exist_ok=True)
-        return newdir + split[len(split) - 1].replace('-dt.json', f'-{info_key}-di.json')
-
-    if file == "":
-        return
-
-    json_obj = json.loads(file)
-
-    with open(get_info_dir(), 'w') as json_file:
+    with open(dir_maker.get_di_dir(type_dir, system_path, info_key), 'w') as json_file:
         json.dump(replace_json_leaves_with_null(json_obj), json_file, indent=4)
 
 
-def make_di_for_all_json_files_under(root):
-    """
-    | Make Data Info table for the given all valid json file
-    | under given root according to the provided info key.
-    :param root: str
-    :return: void
-    """
-
-    if os.path.isdir(root):
-        subdirs = os.listdir(root)
-        for subdir in subdirs:
-            make_di_for_all_json_files_under(f"{root}{subdir}"
-                                             if root.endswith('/')
-                                             else f"{root}/{subdir}")
-    else:
-        if not root.endswith('.json'):
-            return
-        # Ignore tables
-        if root.endswith('-di.json'):
-            return
-
-        filedir = root
-
-        with open(filedir, 'r') as file:
-            make_di_for_json(filedir, file.read())
-
-
-def get_table_dir_for(valid_filedir):
-    """
-    | Returns the directory of the given valid json
-    | file's directory's data table
-    :param valid_filedir: str
-    :return: str
-    """
-    split = valid_filedir.split('/')
-    split = [e for e in split if e != '']
-    result_dir = '/'.join(split[:4])
-    result_dir += "/table/"
-    result_dir += '/'.join(split[4:-1])
-    result_dir += "/"
-
-    return result_dir + split[-1].replace('.json', '-dt.json')
-
-
 if __name__ == "__main__":
-    mydir = f'{db_path.system_path}/{target_table_dir}'
-    # If the directory is a folder
-    if not mydir.endswith('.json') and not mydir.endswith('/'):
-        mydir += '/'
-    mydir = get_table_dir_for(mydir)
+    system_type_dir = db_path.system_path + '/type/' + target_table_dir
 
-    make_di_for_all_json_files_under(mydir)
+    if os.path.isdir(system_type_dir) or os.path.isfile(system_type_dir):
+        jsons = util.get_jsons_under(system_type_dir)
+        for j in jsons:
+            make_info_for_json(j, db_path.system_path)

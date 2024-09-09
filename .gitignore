@@ -165,3 +165,4 @@ src/requestor.py
 img
 .DS_Store
 src/secret_path.py
+usr/private

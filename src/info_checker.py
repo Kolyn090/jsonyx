@@ -2,6 +2,8 @@ import os
 import json
 
 import db_path
+import util
+import dir_maker
 
 '''
     Check for info files validness
@@ -18,19 +20,6 @@ import db_path
     Tip: Check data_info_reference_example.png for visualization
     Tip: di stands for 'data-info'
 '''
-
-
-def get_Table_dir(data_info_dir):
-    """
-    | Returns the directory of Table of the given data info directory.
-    :param data_info_dir: str
-    :return: str
-    """
-    split = data_info_dir.split('/')
-    table_name_split = split[-1].split('-')
-    table_name = '-'.join(table_name_split[:-2]) + table_name_split[-1].replace('di.json', '.json')
-
-    return (db_path.data_path + "/" + '/'.join(split[5:-2]) + "/" + table_name).replace('//', '/')
 
 
 def compare_json_structures_ignore_type(json1, json2):
@@ -141,7 +130,7 @@ def get_nested_value(data, fields):
     return data
 
 
-def confirm_reference(json_obj, data_info_dir, parent_key=""):
+def confirm_reference(di_obj, di_dir, json_dir, parent_key=""):
     """
     | Confirm that each value in Table (that is referencing field from
     | another table) actually also exists in the Referenced Table's values.
@@ -161,19 +150,17 @@ def confirm_reference(json_obj, data_info_dir, parent_key=""):
     | only appeared in Reference Table "key" field values (in this
     | example, only 0 is possible).
     |
-    :param json_obj: JSON
-    :param data_info_dir: str
+    :param di_obj: JSON
+    :param di_dir: str
+    :param json_dir: str
     :param parent_key: str
     :return: void
     """
 
-    split = data_info_dir.split('/')
-    parent_dir = '/'.join(split[:-3])
-
     # Referenced Table (in relative path)
     stored_references_dir = ''
-    if isinstance(json_obj, dict):
-        for key, value in json_obj.items():
+    if isinstance(di_obj, dict):
+        for key, value in di_obj.items():
             if key == 'REFERENCES':
                 # Store the path, the next key must be REFERENCES-FIELD
                 stored_references_dir = value
@@ -183,16 +170,13 @@ def confirm_reference(json_obj, data_info_dir, parent_key=""):
                 # The field is storing a relative path based on the above path
                 # Combine them to get the path to Referenced Table (which can be opened)
 
-                # WARNING: used 'data' in directory
-                referenced_table_dir = get_relative_path(get_Table_dir(data_info_dir),
-                                                         "../" + stored_references_dir)
+                referenced_table_dir = get_relative_path(json_dir, '../' + stored_references_dir)
                 assert referenced_table_dir.endswith('.json')
-                with (open(referenced_table_dir, 'r') as referenced_table_file):
+                with open(referenced_table_dir, 'r') as referenced_table_file:
                     referenced_table = json.loads(referenced_table_file.read())
 
                     # Goal: Open Table
-                    table_dir = get_Table_dir(data_info_dir)
-                    with open(table_dir, 'r') as table_file:
+                    with open(json_dir, 'r') as table_file:
                         table = json.loads(table_file.read())
                         # 'parent_key' can lead to the referencing field in Table
                         # 'value' can lead to the referenced field in Referenced Table
@@ -222,16 +206,16 @@ def confirm_reference(json_obj, data_info_dir, parent_key=""):
                                 if a is None:
                                     result = True
 
-                            assert result, f'{a} in {table_dir} is invalid.'
+                            assert result, f'{a} in {json_dir} is invalid.'
             else:
-                confirm_reference(value, data_info_dir, parent_key + '/' + key)  # Recursively read the value
+                confirm_reference(value, di_dir, json_dir, parent_key + '/' + key)  # Recursively read the value
 
-    elif isinstance(json_obj, list):
-        for index, item in enumerate(json_obj):
-            confirm_reference(item, data_info_dir, parent_key)  # Recursively read each item in the list
+    elif isinstance(di_obj, list):
+        for index, item in enumerate(di_obj):
+            confirm_reference(item, di_dir, json_dir, parent_key)  # Recursively read each item in the list
 
 
-def check_uniqueness(json_obj, data_info_dir, parent_key=""):
+def check_uniqueness(di_obj, di_dir, json_dir, parent_key=""):
     """
     | Confirm that each field marked 'unique' is unique in 
     | the Referenced Table within its own scope.
@@ -290,16 +274,12 @@ def check_uniqueness(json_obj, data_info_dir, parent_key=""):
     |   ]
     | }
     | >> False
-    :param json_obj: JSON
-    :param data_info_dir: str
+    :param di_obj: JSON
+    :param di_dir: str
+    :param json_dir: str
     :param parent_key: str
     :return: void
     """
-
-    split = data_info_dir.split('/')
-    parent_dir = '/'.join(split[:-3])
-    parent_dir = '/'.join(parent_dir.split('/')[:-1])+"/data/"
-    parent_dir = parent_dir.replace('/system', '')
 
     def test_uniqueness_of_bottom_level_lists(lst, actual_Table_dir):
         if isinstance(lst, list):
@@ -311,101 +291,73 @@ def check_uniqueness(json_obj, data_info_dir, parent_key=""):
             for element in lst:
                 test_uniqueness_of_bottom_level_lists(element, actual_Table_dir)
 
-    if isinstance(json_obj, dict):
-        for key, value in json_obj.items():
+    if isinstance(di_obj, dict):
+        for key, value in di_obj.items():
             if isinstance(value, list) or isinstance(value, dict):
-                check_uniqueness(value, data_info_dir, parent_key + '/' + key)
+                check_uniqueness(value, di_dir, json_dir, parent_key + '/' + key)
             else:
                 # print(parent_key)
-                if value == True:
-                    actual_Table = (parent_dir +
-                                    '/'.join(split[5:-2]) +
-                                    "/" +
-                                    split[-1].replace('-uni-di.json', '.json'))
-
-                    with (open(actual_Table) as actual_file):
+                if value:
+                    with open(json_dir) as actual_file:
                         actual_json = json.loads(actual_file.read())
                         fields = [field for field in parent_key.split('/') if field != '']
                         fields.append(key)
                         nested_value = get_nested_value(actual_json, fields)
-                        test_uniqueness_of_bottom_level_lists(nested_value, actual_Table)
+                        test_uniqueness_of_bottom_level_lists(nested_value, json_dir)
 
-    elif isinstance(json_obj, list):
-        for index, item in enumerate(json_obj):
+    elif isinstance(di_obj, list):
+        for index, item in enumerate(di_obj):
             if isinstance(item, dict):
-                check_uniqueness(item, data_info_dir, parent_key)
+                check_uniqueness(item, di_dir, json_dir, parent_key)
 
 
-def test_data_info(data_info_dir, data_info_content):
+def test_info(di_dir, system_path, data_path):
+    with open(di_dir) as file:
+        if file == '':
+            return
+        else:
+            di_obj = json.loads(file.read())
+    with open(di_dir) as file:
+        if file == '':
+            return
+        else:
+            di_obj_copy = json.loads(file.read())
+
+    # 1. Info must have the exact same structure as its type table
     """
-    | Check whether all 4 rules on the top of this script hold
-    :param data_info_dir: str
-    :param data_info_content: str
-    :return: void
-    """
-
-    if data_info_content == "":
-        return
-
-    # 1. Info must have the exact same structure as its Table
-    '''
     Replace all
     {
         "REFERENCES": xxx,
         "REFERENCES-FIELD": xxx
     }
-    with null
-    '''
-    data_info = json.loads(data_info_content)
-    data_info_simplified = (
-        replace_object_with_null(json.loads(data_info_content),
-                                 ['REFERENCES', 'REFERENCES-FIELD'])
-        if data_info_dir.endswith('-ref-di.json')
-        else data_info
-    )
+    in -ref.json with null
+    """
+    if di_dir.endswith('-ref-di.json'):
+        di_obj = replace_object_with_null(di_obj,
+                                          ['REFERENCES', 'REFERENCES-FIELD'])
+    json_dir = dir_maker.get_json_dir_by_di(di_dir, system_path, data_path)
+    dt_dir = dir_maker.get_dt_dir(json_dir, system_path, data_path)
     # Open Table
-    with open(get_Table_dir(data_info_dir)) as data_table_file:
-        data_table = json.loads(data_table_file.read())
+    with open(dt_dir) as dt_file:
+        dt_obj = json.loads(dt_file.read())
         # Check if Data Info and Table have the same structure
         # note: type is not important, only the fields are
-        assert compare_json_structures_ignore_type(data_info_simplified, data_table), "Table structures are different!"
+        assert compare_json_structures_ignore_type(di_obj, dt_obj), "Table structures are different!"
 
     # 2. Ensure that every referencing field in Table contains a value
     #    that exists in the Referenced Table's referenced field
-    if data_info_dir.endswith('-ref-di.json'):
-        confirm_reference(data_info, data_info_dir)
+    if di_dir.endswith('-ref-di.json'):
+        confirm_reference(di_obj_copy, di_dir, json_dir)
 
-    # 3. Ensure every field marked true in -uni-di.json is unique
-    # within its own scope
-    if data_info_dir.endswith('-uni-di.json'):
-        check_uniqueness(data_info, data_info_dir)
-
-
-def test_all_data_info_under(root):
-    """
-    | Perform checks on all Data Info under the given root.
-    :param root: str
-    :return: void
-    """
-
-    if os.path.isdir(root):
-        subdirs = os.listdir(root)
-
-        for subdir in subdirs:
-            # Recursively iterates through all files in the database
-            test_all_data_info_under(f"{root}{subdir}"
-                                     if root.endswith('/')
-                                     else f"{root}/{subdir}")
-    else:
-        # Return if it's not a data info file
-        if not root.endswith('-di.json'):
-            return
-
-        data_info_dir = root
-        # print(root)
-        with open(data_info_dir, 'r') as data_info_file:
-            test_data_info(data_info_dir, data_info_file.read())
+    # # 3. Ensure every field marked true in -uni-di.json is unique
+    # # within its own scope
+    if di_dir.endswith('-uni-di.json'):
+        check_uniqueness(di_obj_copy, di_dir, json_dir)
 
 
 if __name__ == "__main__":
-    test_all_data_info_under(f'{db_path.system_path}/info')
+    system_info_dir = db_path.system_path + '/info/'
+    jsons = util.get_jsons_under(system_info_dir)
+    for j in jsons:
+        test_info(j, db_path.system_path, db_path.data_path)
+    # test_info(jsons[1], db_path.system_path, db_path.data_path)
