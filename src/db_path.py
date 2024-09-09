@@ -1,4 +1,6 @@
-import using_db
+import secret_path
 
-data_path = f'../usr/{using_db.using_db}/data'
-system_path = f'../usr/{using_db.using_db}/system'
+data_path = f'../usr/example-db/data'
+system_path = f'../usr/example-db/system'
+# data_path = secret_path.data_path
+# system_path = secret_path.system_path

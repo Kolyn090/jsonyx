@@ -5,7 +5,6 @@
       <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/.venv" />
       <excludeFolder url="file://$MODULE_DIR$/img" />
-      <excludeFolder url="file://$MODULE_DIR$/usr" />
       <excludeFolder url="file://$MODULE_DIR$/usr/mhfu-db" />
     </content>
     <orderEntry type="jdk" jdkName="Python 3.9 (jsonyx)" jdkType="Python SDK" />
