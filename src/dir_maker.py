@@ -1,19 +1,19 @@
 import os
 
 
-def remove_last_n_items(path, n):
+def remove_last_n_items(directory, n):
     for _ in range(n):
-        path = os.path.dirname(path)
-    return path
+        directory = os.path.dirname(directory)
+    return directory
 
 
-def remove_first_n_items(path, n):
-    new_path = path
+def remove_first_n_items(directory, n):
+    new_dir = directory
     for _ in range(n):
-        path_parts = new_path.split(os.sep)
-        path_parts = path_parts[1:]
-        new_path = os.sep.join(path_parts)
-    return new_path
+        dir_parts = new_dir.split(os.sep)
+        dir_parts = dir_parts[1:]
+        new_dir = os.sep.join(dir_parts)
+    return new_dir
 
 
 # The directory used to store (within-db)
