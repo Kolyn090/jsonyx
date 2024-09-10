@@ -5,22 +5,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8beb8bfa-6798-4a01-80bd-63d7be876b0e" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/dir_maker.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/util.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/jsonyx.iml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/db_path.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/db_path.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/dir_maker.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/dir_maker.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/info_checker.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/info_checker.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/info_maker.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/info_maker.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/table_maker.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/type_maker.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/usr/example-db/system/info/example1/example1-uni-di.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/usr/example-db/system/table/example1-dt.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/suffix_replacer.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/suffix_replacer.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/type_maker.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/type_maker.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/util.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/util.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -82,7 +74,7 @@
       <recent name="$PROJECT_DIR$/usr/mhfu-db/data" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.info_checker">
+  <component name="RunManager">
     <configuration name="info_checker" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="jsonyx" />
       <option name="ENV_FILES" value="" />
@@ -151,8 +143,8 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.info_checker" />
         <item itemvalue="Python.info_maker" />
+        <item itemvalue="Python.info_checker" />
         <item itemvalue="Python.suffix_replacer" />
       </list>
     </recent_temporary>

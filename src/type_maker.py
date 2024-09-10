@@ -161,13 +161,13 @@ def get_all_property_name_val(data, parent_key=''):
     return items
 
 
-def make_type_for_json(json_dir, system_path, data_path):
+def make_type_for_json(json_dir, system_dir, data_dir):
     """
     | Make a data table for the given json file.
     | For more details, please check the top of this script.
     :param json_dir: str
-    :param system_path: str
-    :param data_path: str
+    :param system_dir: str
+    :param data_dir: str
     :return: Void
     """
 
@@ -234,11 +234,11 @@ def make_type_for_json(json_dir, system_path, data_path):
         out[key] = '/'.join(str(item) for item in out[key])
 
     # Write the table to -dt.json
-    with open(dir_maker.get_dt_dir(json_dir, system_path, data_path), 'w') as json_file:
+    with open(dir_maker.get_dt_dir(json_dir, system_dir, data_dir), 'w') as json_file:
         json.dump(convert_to_nested_json(out), json_file, indent=4)
 
 
 if __name__ == "__main__":
-    jsons = util.get_jsons_under(db_path.data_path)
+    jsons = util.get_jsons_under(db_path.data_dir)
     for j in jsons:
-        make_type_for_json(j, db_path.system_path, db_path.data_path)
+        make_type_for_json(j, db_path.system_dir, db_path.data_dir)

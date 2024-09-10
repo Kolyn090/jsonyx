@@ -92,24 +92,24 @@ def replace_object_with_null(json_obj, target_fields):
     return json_obj
 
 
-def get_relative_path(base_path, relative_path):
+def get_relative_dir(base_dir, relative_dir):
     """
-    | Return a new path from path that is relative to the
-    | base path
+    | Return a new dir from dir that is relative to the
+    | base dir
     | Example:
-    | base_path = "./Farm"
-    | relative_path = "../items.json"
+    | base_dir = "./Farm"
+    | relative_dir = "../items.json"
     | >> "items.json"
-    :param base_path: str
-    :param relative_path: str
+    :param base_dir: str
+    :param relative_dir: str
     :return: str
     """
 
-    # Join the base path with the relative path
-    full_path = os.path.join(base_path, relative_path)
-    # Normalize the path to remove any redundant components like '..' or '.'
-    normalized_path = os.path.normpath(full_path)
-    return normalized_path
+    # Join the base dir with the relative dir
+    full_dir = os.path.join(base_dir, relative_dir)
+    # Normalize the dir to remove any redundant components like '..' or '.'
+    normalized_dir = os.path.normpath(full_dir)
+    return normalized_dir
 
 
 def get_nested_value(data, fields):
@@ -130,7 +130,7 @@ def get_nested_value(data, fields):
     return data
 
 
-def confirm_reference(di_obj, di_dir, json_dir, parent_key=""):
+def confirm_reference(di_obj, di_dir, json_dir, parent_keys=None):
     """
     | Confirm that each value in Table (that is referencing field from
     | another table) actually also exists in the Referenced Table's values.
@@ -153,24 +153,27 @@ def confirm_reference(di_obj, di_dir, json_dir, parent_key=""):
     :param di_obj: JSON
     :param di_dir: str
     :param json_dir: str
-    :param parent_key: str
+    :param parent_keys: str[]
     :return: void
     """
 
-    # Referenced Table (in relative path)
+    if parent_keys is None:
+        parent_keys = []
+
+    # Referenced Table (in relative dir)
     stored_references_dir = ''
     if isinstance(di_obj, dict):
         for key, value in di_obj.items():
             if key == 'REFERENCES':
-                # Store the path, the next key must be REFERENCES-FIELD
+                # Store the dir, the next key must be REFERENCES-FIELD
                 stored_references_dir = value
             elif key == 'REFERENCES-FIELD':
                 # Goal: Open Referenced Table
                 # 'Table' is guaranteed to be in the parent directory
-                # The field is storing a relative path based on the above path
-                # Combine them to get the path to Referenced Table (which can be opened)
+                # The field is storing a relative dir based on the above dir
+                # Combine them to get the dir to Referenced Table (which can be opened)
 
-                referenced_table_dir = get_relative_path(json_dir, '../' + stored_references_dir)
+                referenced_table_dir = get_relative_dir(json_dir, os.path.join('..', stored_references_dir))
                 assert referenced_table_dir.endswith('.json')
                 with open(referenced_table_dir, 'r') as referenced_table_file:
                     referenced_table = json.loads(referenced_table_file.read())
@@ -178,10 +181,6 @@ def confirm_reference(di_obj, di_dir, json_dir, parent_key=""):
                     # Goal: Open Table
                     with open(json_dir, 'r') as table_file:
                         table = json.loads(table_file.read())
-                        # 'parent_key' can lead to the referencing field in Table
-                        # 'value' can lead to the referenced field in Referenced Table
-                        split_parent_key = [field for field in parent_key.split('/') if field != '']
-                        split_value = [field for field in value.split('/') if field != '']
 
                         def flatten_list(lst):
                             flattened = []
@@ -192,15 +191,15 @@ def confirm_reference(di_obj, di_dir, json_dir, parent_key=""):
                                     flattened.append(sublist)  # Append the element directly if it's not a list/tuple
                             return flattened
 
-                        table_values = flatten_list(list(map(lambda x: get_nested_value(x, split_parent_key), table)))
-                        referenced_table_values = \
-                            flatten_list(list(map(lambda x: get_nested_value(x, split_value), referenced_table)))
-
-                        # print(table_values)
+                        # 'parent_key' can lead to the referencing field in Table
+                        # 'value' can lead to the referenced field in Referenced Table
+                        table_values = flatten_list(list(map(lambda x: get_nested_value(x, parent_keys), table)))
+                        ref_table_values = \
+                            flatten_list(list(map(lambda x: get_nested_value(x, [value]), referenced_table)))
 
                         for a in table_values:
                             result = False
-                            for b in referenced_table_values:
+                            for b in ref_table_values:
                                 if a == b:
                                     result = True
                                 if a is None:
@@ -208,14 +207,14 @@ def confirm_reference(di_obj, di_dir, json_dir, parent_key=""):
 
                             assert result, f'{a} in {json_dir} is invalid.'
             else:
-                confirm_reference(value, di_dir, json_dir, parent_key + '/' + key)  # Recursively read the value
+                confirm_reference(value, di_dir, json_dir, parent_keys + [key])  # Recursively read the value
 
     elif isinstance(di_obj, list):
         for index, item in enumerate(di_obj):
-            confirm_reference(item, di_dir, json_dir, parent_key)  # Recursively read each item in the list
+            confirm_reference(item, di_dir, json_dir, parent_keys)  # Recursively read each item in the list
 
 
-def check_uniqueness(di_obj, di_dir, json_dir, parent_key=""):
+def check_uniqueness(di_obj, di_dir, json_dir, parent_keys=None):
     """
     | Confirm that each field marked 'unique' is unique in 
     | the Referenced Table within its own scope.
@@ -277,9 +276,12 @@ def check_uniqueness(di_obj, di_dir, json_dir, parent_key=""):
     :param di_obj: JSON
     :param di_dir: str
     :param json_dir: str
-    :param parent_key: str
+    :param parent_keys: str[]
     :return: void
     """
+
+    if parent_keys is None:
+        parent_keys = []
 
     def test_uniqueness_of_bottom_level_lists(lst, actual_Table_dir):
         if isinstance(lst, list):
@@ -294,29 +296,27 @@ def check_uniqueness(di_obj, di_dir, json_dir, parent_key=""):
     if isinstance(di_obj, dict):
         for key, value in di_obj.items():
             if isinstance(value, list) or isinstance(value, dict):
-                check_uniqueness(value, di_dir, json_dir, parent_key + '/' + key)
+                check_uniqueness(value, di_dir, json_dir, parent_keys + [key])
             else:
-                # print(parent_key)
                 if value:
                     with open(json_dir) as actual_file:
                         actual_json = json.loads(actual_file.read())
-                        fields = [field for field in parent_key.split('/') if field != '']
-                        fields.append(key)
-                        nested_value = get_nested_value(actual_json, fields)
+                        nested_value = get_nested_value(actual_json, parent_keys + [key])
                         test_uniqueness_of_bottom_level_lists(nested_value, json_dir)
 
     elif isinstance(di_obj, list):
         for index, item in enumerate(di_obj):
             if isinstance(item, dict):
-                check_uniqueness(item, di_dir, json_dir, parent_key)
+                check_uniqueness(item, di_dir, json_dir, parent_keys)
 
 
-def test_info(di_dir, system_path, data_path):
+def test_info(di_dir, system_dir, data_dir):
     with open(di_dir) as file:
         if file == '':
             return
         else:
             di_obj = json.loads(file.read())
+
     with open(di_dir) as file:
         if file == '':
             return
@@ -335,8 +335,8 @@ def test_info(di_dir, system_path, data_path):
     if di_dir.endswith('-ref-di.json'):
         di_obj = replace_object_with_null(di_obj,
                                           ['REFERENCES', 'REFERENCES-FIELD'])
-    json_dir = dir_maker.get_json_dir_by_di(di_dir, system_path, data_path)
-    dt_dir = dir_maker.get_dt_dir(json_dir, system_path, data_path)
+    json_dir = dir_maker.get_json_dir_by_di(di_dir, system_dir, data_dir)
+    dt_dir = dir_maker.get_dt_dir(json_dir, system_dir, data_dir)
     # Open Table
     with open(dt_dir) as dt_file:
         dt_obj = json.loads(dt_file.read())
@@ -356,8 +356,7 @@ def test_info(di_dir, system_path, data_path):
 
 
 if __name__ == "__main__":
-    system_info_dir = db_path.system_path + '/info/'
+    system_info_dir = os.path.join(db_path.system_dir, 'info/')
     jsons = util.get_jsons_under(system_info_dir)
     for j in jsons:
-        test_info(j, db_path.system_path, db_path.data_path)
-    # test_info(jsons[1], db_path.system_path, db_path.data_path)
+        test_info(j, db_path.system_dir, db_path.data_dir)

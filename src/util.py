@@ -8,7 +8,7 @@ def get_jsons_under(directory):
         if os.path.isdir(root):
             subdirs = os.listdir(root)
             for subdir in subdirs:
-                rec(f"{root}/{subdir}")
+                rec(os.path.join(root, subdir.lstrip("/\\")))
         else:
             if not root.endswith('.json'):
                 return

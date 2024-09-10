@@ -18,7 +18,7 @@ def replace_suffix_for_all_files_under(root):
     if os.path.isdir(root):
         subdirs = os.listdir(root)
         for subdir in subdirs:
-            replace_suffix_for_all_files_under(f"{root}/{subdir}")
+            replace_suffix_for_all_files_under(os.path.join(root, subdir.lstrip("/\\")))
     else:
         if not root.endswith(to_be_replaced):
             return
@@ -28,4 +28,4 @@ def replace_suffix_for_all_files_under(root):
 
 
 if __name__ == "__main__":
-    replace_suffix_for_all_files_under(db_path.system_path)
+    replace_suffix_for_all_files_under(db_path.system_dir)
