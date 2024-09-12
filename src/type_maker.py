@@ -184,6 +184,7 @@ def make_type_for_json(json_dir, system_dir, data_dir):
             float: 'FLOAT',
             list: 'ARRAY',
             dict: 'JSON',
+            bool: 'BOOLEAN',
             type(None): 'NULL'
         }
         return type_mapping.get(py_type, 'UNKNOWN')
