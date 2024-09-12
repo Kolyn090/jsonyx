@@ -1,0 +1,73 @@
+[
+  {
+    "topic": "In this file, I will discuss some details regarding json files in this DBMS.",
+    "notes": [
+      "Please read carefully."
+    ]
+  },
+  {
+    "topic": "First thing to do: Check out requirement.json for bad/invalid json file examples.",
+    "notes": [
+
+    ]
+  },
+  {
+    "topic": "After you have read requirement.json, I will introduce some general structures.",
+    "notes": [
+      "This is important and it's worth to be repeated twice!",
+      "This is important and it's worth to be repeated twice!"
+    ]
+  },
+  {
+    "topic": "The second thing you need to know.",
+    "notes": [
+      "The contents of json file must be stored in a list.",
+      "Meaning, the first character of your json file must be '[', a left bracket,",
+      "and the last character must be ']', a right bracket."
+    ]
+  },
+  {
+    "topic": "What is scope in jsonyx?",
+    "notes": [
+      "A scope in jsonyx is defined with lists.",
+      "Items under the same list is in the same scope.",
+      "Number of items in a list will not affect the structure.",
+      "It's valid to have lists with different length under the same scope.",
+      "Important: If object 1 and object 2 are under the same scope and",
+      "they have a list field, their list field is under the same scope."
+    ]
+  },
+  {
+    "topic": "What is a data type table (-dt.json)?",
+    "notes": [
+      "A data type table can be generated for all valid json files,",
+      "maybe for some bad json files as well if it has no type conflict.",
+      "A data type table contains the types of an item structure in the top scope.",
+      "Top scope means all items in the outermost list.",
+      "If the item is an object, types of all fields will be included.",
+      "How to create a data type table (-dt.json)?",
+      "Run src/type_maker.py",
+      "Currently, it will attempt to create data type tables for all json files under the current DB.",
+      "How to read a data type table (-dt.json)?",
+      "First, the possible types are:",
+      "str: 'VARCHAR'",
+      "int: 'INT'",
+      "float: 'FLOAT'",
+      "list: 'ARRAY'",
+      "dict: 'JSON'",
+      "bool: 'BOOLEAN'",
+      "type(None): 'NULL'",
+      "Special note 1: If a field is a list of non-objects, its type will be 'ARRAY(TYPE)'",
+      "else, it will be [TYPE]",
+      "Special note 2: The type JSON is almost never used."
+    ]
+  },
+  {
+    "topic": "This field is valid.",
+    "notes": [
+      "Its type structure is:",
+      "message: VARCHAR",
+      "notes: ARRAY(VARCHAR)"
+    ]
+  }
+]

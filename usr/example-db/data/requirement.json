@@ -1,0 +1,35 @@
+[
+  {
+    "requirement": "List cannot be in a list.",
+    "values": [
+        [1, 2, 3, 4],
+        [5, 6, 7, 8],
+        [9, 10, 11, 12]
+    ]
+  },
+  {
+    "requirement": "Items in a list must have the same structure.",
+    "list": [
+      {
+        "id": 990,
+        "name": "firefly"
+      },
+      {
+        "id": 556,
+        "name": "bad-value",
+        "error": "structure not match."
+      },
+      {
+        "id": 344,
+        "name": "If this item were not an object, running type maker will crush."
+      }
+    ]
+  },
+  {
+    "requirement": "A list of items of primitive types (INT, VARCHAR...) should all have the same type!",
+    "bad-list": [
+      112,
+      "bad-value"
+    ]
+  }
+]
