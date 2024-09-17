@@ -148,6 +148,8 @@ def get_all_property_name_val(data, parent_key=''):
             else:
                 items[new_key] = v
     elif isinstance(data, list):
+        if len(data) == 0:
+            items[parent_key] = []
         for i, v in enumerate(data):
             new_key = f"{parent_key}[{i}]"
             if isinstance(v, (dict, list)):
@@ -157,7 +159,7 @@ def get_all_property_name_val(data, parent_key=''):
                 # new_key's type as an "ARRAY" by making v as a list
                 # of itself
                 items[new_key] = [v]
-
+    print(items)
     return items
 
 
@@ -218,7 +220,12 @@ def make_type_for_json(json_dir, system_dir, data_dir):
             type_of_val = python_to_sql_type(type(value))
             if type_of_val == 'ARRAY':
                 # Find out this is an array of what type
-                first_element_type = type(value[0])
+                if len(value) == 0:
+                    # This key list is empty across the entire table.
+                    # It should have type ARRAY(UNKNOWN)
+                    first_element_type = None
+                else:
+                    first_element_type = type(value[0])
                 type_of_val = f"ARRAY({python_to_sql_type(first_element_type)})"
                 # Remove the 'ARRAY' in out since it's repetitive
                 # For example, 'ARRAY(INT) is easier to read than 'ARRAY/ARRAY(INT)'

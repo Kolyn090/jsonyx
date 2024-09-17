@@ -1,0 +1,4 @@
+{
+    "topic": "VARCHAR",
+    "notes": "ARRAY(VARCHAR)"
+}
