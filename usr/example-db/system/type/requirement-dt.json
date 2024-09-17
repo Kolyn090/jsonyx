@@ -1,0 +1,12 @@
+{
+    "requirement": "VARCHAR",
+    "values": "ARRAY(INT)",
+    "list": [
+        {
+            "id": "INT",
+            "name": "VARCHAR",
+            "error": "VARCHAR"
+        }
+    ],
+    "bad-list": "ARRAY(VARCHAR)"
+}
