@@ -5,12 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8beb8bfa-6798-4a01-80bd-63d7be876b0e" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/structure_checker.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/usr/debug-db/data/test3.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/type_maker.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/type_maker.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/usr/debug-db/data/test.json" beforeDir="false" afterPath="$PROJECT_DIR$/usr/debug-db/data/test.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/usr/debug-db/data/test2.json" beforeDir="false" afterPath="$PROJECT_DIR$/usr/debug-db/data/test2.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/structure_checker.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/structure_checker.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -167,5 +163,16 @@
       <updated>1725736238912</updated>
     </task>
     <servers />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
   </component>
 </project>

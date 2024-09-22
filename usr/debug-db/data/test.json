@@ -7,7 +7,8 @@
     ],
     "list2": [
       {
-        "test": "x000"
+        "test": "x000",
+        "enemy": "fire"
       },
       {
         "test": 999
