@@ -5,14 +5,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8beb8bfa-6798-4a01-80bd-63d7be876b0e" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/src/structure_checker.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/usr/debug-db/data/test3.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/db_path.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/db_path.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/type_maker.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/type_maker.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/usr/example-db/data/inventory.json" beforeDir="false" afterPath="$PROJECT_DIR$/usr/debug-db/data/test2.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/usr/example-db/data/movie.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/usr/example-db/data/readme.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/usr/example-db/data/requirement.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/usr/example-db/data/user_profile.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/usr/debug-db/data/test.json" beforeDir="false" afterPath="$PROJECT_DIR$/usr/debug-db/data/test.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/usr/debug-db/data/test2.json" beforeDir="false" afterPath="$PROJECT_DIR$/usr/debug-db/data/test2.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -40,26 +38,27 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ASKED_ADD_EXTERNAL_FILES&quot;: &quot;true&quot;,
-    &quot;ASKED_SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;Python.dir_maker.executor&quot;: &quot;Run&quot;,
-    &quot;Python.info_checker.executor&quot;: &quot;Run&quot;,
-    &quot;Python.info_maker.executor&quot;: &quot;Run&quot;,
-    &quot;Python.requestor.executor&quot;: &quot;Run&quot;,
-    &quot;Python.secret_path.executor&quot;: &quot;Run&quot;,
-    &quot;Python.suffix_replacer.executor&quot;: &quot;Run&quot;,
-    &quot;Python.table_maker.executor&quot;: &quot;Run&quot;,
-    &quot;Python.type_maker.executor&quot;: &quot;Run&quot;,
-    &quot;Python.type_table_maker.executor&quot;: &quot;Run&quot;,
-    &quot;Python.using_db.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/Users/jianxinlin/Kolyn/Coding/Git/jsonyx&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ASKED_ADD_EXTERNAL_FILES": "true",
+    "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "Python.dir_maker.executor": "Run",
+    "Python.info_checker.executor": "Run",
+    "Python.info_maker.executor": "Run",
+    "Python.requestor.executor": "Run",
+    "Python.secret_path.executor": "Run",
+    "Python.structure_checker.executor": "Run",
+    "Python.suffix_replacer.executor": "Run",
+    "Python.table_maker.executor": "Run",
+    "Python.type_maker.executor": "Run",
+    "Python.type_table_maker.executor": "Run",
+    "Python.using_db.executor": "Run",
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "last_opened_file_path": "/Users/jianxinlin/Kolyn/Coding/Git/jsonyx"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/usr/mhfu-db/system/info" />
@@ -145,8 +144,8 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.info_maker" />
         <item itemvalue="Python.info_checker" />
+        <item itemvalue="Python.info_maker" />
         <item itemvalue="Python.suffix_replacer" />
       </list>
     </recent_temporary>
