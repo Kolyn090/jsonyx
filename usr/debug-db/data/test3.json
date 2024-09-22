@@ -2,13 +2,13 @@
   {
     "name": "",
     "list": [
-
+      "buzz"
     ]
   },
   {
-    "name": "",
+    "name": 23,
     "list": [
-      null
+
     ]
   }
 ]

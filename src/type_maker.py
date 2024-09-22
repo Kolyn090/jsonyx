@@ -159,7 +159,8 @@ def get_all_property_name_val(data, parent_key=''):
                 # new_key's type as an "ARRAY" by making v as a list
                 # of itself
                 items[new_key] = [v]
-    print(items)
+    # print(items)
+    # print("----------------------")
     return items
 
 
@@ -197,6 +198,7 @@ def make_type_for_json(json_dir, system_dir, data_dir):
         all_property_name_val = get_all_property_name_val(element)
         for key, value in all_property_name_val.items():
             # Remove the brackets to 'join' the keys
+            # TODO: fix issue when the original key name has brackets
             real_key = re.sub(r'\[.*?]', '', key)
 
             if key != real_key:
@@ -221,6 +223,7 @@ def make_type_for_json(json_dir, system_dir, data_dir):
             if type_of_val == 'ARRAY':
                 # Find out this is an array of what type
                 if len(value) == 0:
+                    # print(key)
                     # This key list is empty across the entire table.
                     # It should have type ARRAY(UNKNOWN)
                     first_element_type = None
