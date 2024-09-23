@@ -25,6 +25,13 @@ def get_node_type(node):
     return 2
 
 
+class Node:
+    def __init__(self):
+        self.key = ''
+        self.value_type = python_to_sql_type(None)
+        self.parent = None
+
+
 def structure_check(json_dir, system_dir, data_dir):
     with open(json_dir) as file:
         if file == '':
@@ -42,6 +49,7 @@ def structure_check(json_dir, system_dir, data_dir):
     # initialize name for dict under outermost list
     # List<(Node, Level, Node_Name)>
     pq = [(e, 0, f'n{i}') for i, e in enumerate(json_obj)]
+    first_row = [(tu[2], python_to_sql_type(dict), 'ROOT', 1) for tu in pq]
 
     temp_name_idx = len(json_obj) - 1
     while len(pq) > 0:
@@ -64,6 +72,7 @@ def structure_check(json_dir, system_dir, data_dir):
                 pq.append((item, node_level + 1, f'n{temp_name_idx}'))
                 scope[node_level].append((f'n{temp_name_idx}', python_to_sql_type(type(item)), node_name, curr_type))
 
+    scope.insert(0, first_row)  # outermost
     # print(scope)
 
     """ Group records to the same scope """
@@ -73,9 +82,9 @@ def structure_check(json_dir, system_dir, data_dir):
         # Notice that parent type is 0, 1, 2
         # while type is SQL type
         for key, tp, parent_key, parent_tp in level:
-            if key not in group:
-                group[key] = []
-            group[key].append((tp, parent_key, parent_tp))
+            if (parent_key, parent_tp) not in group:
+                group[(parent_key, parent_tp)] = []
+            group[(parent_key, parent_tp)].append((key, tp))
         if len(group) > 0:
             same_scope.append(group)
 
