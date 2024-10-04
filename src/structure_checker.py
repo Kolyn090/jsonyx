@@ -134,20 +134,22 @@ def get_same_scope_tree(json_dir):
             for k, v in obj.items():
                 new_node = Node(k, python_to_sql_type(type(v)), curr_node)
                 pq.append((v, node_level + 1, new_node))
-                # scope_tree[node_level].append(new_node)
         elif obj_type == 1:  # list
             curr_node.child_count = len(obj)
             for idx, item in enumerate(obj):
-                new_node = Node('', python_to_sql_type(type(item)), curr_node)
+                item_type = python_to_sql_type(type(item))
+                new_node = Node('', item_type, curr_node)
                 pq.append((item, node_level + 1, new_node))
-                # scope_tree[node_level].append(new_node)
+        elif obj_type == 2:  # value (not null)
+            if curr_node.parent.value_type == SQL_list:
+                new_node = Node(curr_node.key, python_to_sql_type(type(obj)), curr_node)
+                pq.append((None, node_level + 1, new_node))
 
     scope_tree.insert(0, [root])
 
     # for idx, row in enumerate(scope_tree):
-    #     print(f'{idx} -------------------')
-    #     for node in row:
-    #         print(node)
+    #     print(f'{idx} -------------------({len(row)})')
+    #     print_list_of_nodes(row)
 
     """ Group records to the same scope_tree """
 
@@ -172,20 +174,37 @@ def get_same_scope_tree(json_dir):
         row = scope_tree[level]
         # Contain a pair of nodes that are in a different scope_tree in this level
         diff_scope_pairs = []
-        for idx1 in range(len(row) - 1):
-            for idx2 in range(idx1 + 1, len(row)):
-                # if common ancestor is a dict, should be in different scope_tree
-                # if common ancestor is a list, should be in the same scope_tree
-                if not are_from_same_source(row[idx1], row[idx2]):
-                    diff_scope_pairs.append((row[idx1], row[idx2]))
-        # Next, organize diff scope_tree pairs into enemies
-        # These enemies will have nodes in the same scope_tree
-        enemies = group_enemies(diff_scope_pairs)
-        same_scope_tree[level].append(enemies)
+        if len(row) > 2:
+            for idx1 in range(len(row) - 1):
+                for idx2 in range(idx1 + 1, len(row)):
+                    # if common ancestor is a dict, should be in different scope_tree
+                    # if common ancestor is a list, should be in the same scope_tree
+                    if not are_from_same_source(row[idx1], row[idx2]):
+                        diff_scope_pairs.append((row[idx1], row[idx2]))
+            # Next, organize diff scope_tree pairs into enemies
+            # These enemies will have nodes in the same scope_tree
+            enemies = group_enemies(diff_scope_pairs)
+            same_scope_tree[level].append(enemies)
+        elif len(row) == 1:
+            same_scope_tree[level].append([[row[0]]])
+        elif len(row) == 2:
+            same_scope_tree[level].append([[row[0], row[1]]])
 
     same_scope_tree[0] = [[[root]]]
     same_scope_tree[1] = [[[n for n in scope_tree[1]]]]
+
+    # for level in range(len(scope_tree)):
+    #     row = scope_tree[level]
+    #     print_list_of_nodes(row)
+
     return same_scope_tree
+
+
+def print_list_of_nodes(lst):
+    result = []
+    for node in lst:
+        result.append(str(node))
+    print(result)
 
 
 def get_scope_node_tree(json_dir):
@@ -216,6 +235,7 @@ def get_scope_node_tree(json_dir):
                     inner2 = []
                     for node in lst:
                         inner2.append(node)
+                        # print_list_of_nodes(inner2)
                     inner1.append([merge_same_scope(inner2), lst])
                 new_tree.append(inner1)
         return new_tree
@@ -234,6 +254,8 @@ def get_scope_node_tree(json_dir):
             # search for parent of scope node from parent level
             # Take the first node of lst to search for parent (their parent should be the same)
             scope_node.parent = search_parent_scope(lst[0].parent, parent_level)
+            # print(scope_node, '--parent--', scope_node.parent, lst)
+            # print(scope_node.parent)
             inner.append(scope_node)
         result.append(inner)
     return result
@@ -241,6 +263,9 @@ def get_scope_node_tree(json_dir):
 
 def save_to_scope_node_JSON(scope_node_tree):
     def convert_to_scope_node_JSON():
+        def pretty_print(scope_node_value_type):
+            return '/'.join(scope_node_value_type)
+
         dicts = []
         for i in range(len(scope_node_tree)):
             grouped_scope_nodes = defaultdict(list)
@@ -249,10 +274,47 @@ def save_to_scope_node_JSON(scope_node_tree):
                 grouped_scope_nodes[scope_node_tree[i][j].parent].append(scope_node_tree[i][j])
             grouped_scope_nodes_dict = dict(grouped_scope_nodes)
             dicts.append(grouped_scope_nodes_dict)
-        print(list(dicts[-1].keys())[0], list(dicts[-1].values())[0][0])
-        pass
-    convert_to_scope_node_JSON()
-    pass
+
+        result = []
+        for d in dicts:
+            for parent_scope_node in d.keys():
+                children = d[parent_scope_node]
+                for child in children:
+                    if child.value_type[0] == SQL_dict:
+                        result.append((parent_scope_node, child, {}))
+                    elif child.value_type[0] == SQL_list:
+                        result.append((parent_scope_node, child, []))
+                    else:
+                        result.append((parent_scope_node, child, pretty_print(child.value_type)))
+        return result
+
+    def get_JSON_dict(scope_node_JSON):
+        def search_parent_obj(parent_scope_node):
+            for tu in scope_node_JSON:
+                if tu[1] == parent_scope_node:
+                    return tu[2]
+            return None
+
+        result = None
+        for tu in scope_node_JSON:
+            parent_scope_node = tu[0]
+            scope_node = tu[1]
+            obj = tu[2]
+            parent_obj = search_parent_obj(parent_scope_node)
+            if parent_obj is None:
+                result = [obj]
+            else:
+                if isinstance(parent_obj, dict):
+                    parent_obj[scope_node.key] = obj
+                elif isinstance(parent_obj, list):
+                    parent_obj.append(obj)
+        return result
+
+    scope_node_JSON = convert_to_scope_node_JSON()
+    JSON_dict = get_JSON_dict(scope_node_JSON)
+
+    with open('something.json', 'w') as json_file:
+        json.dump(JSON_dict, json_file, indent=4)
 
 
 def structure_check(json_dir):
